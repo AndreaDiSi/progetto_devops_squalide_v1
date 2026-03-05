@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}{{ group.name }} – Squalide{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <a href="/groups" class="text-sm text-indigo-600 hover:underline">← Torna ai gruppi</a>
+</div>
+
+<div class="flex items-center justify-between mb-6">
+  <h2 class="text-2xl font-bold text-gray-800">{{ group.name }}</h2>
+  {% if is_owner %}
+  <button hx-post="/groups/{{ group.id }}/delete" hx-confirm="Eliminare il gruppo? Tutti i membri verranno rimossi."
+    class="text-sm text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-3 py-1.5 rounded-lg transition">
+    Elimina gruppo
+  </button>
+  {% else %}
+  <button hx-post="/groups/{{ group.id }}/leave" hx-confirm="Vuoi uscire dal gruppo?"
+    class="text-sm text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-3 py-1.5 rounded-lg transition">
+    Esci dal gruppo
+  </button>
+  {% endif %}
+</div>
+
+<div class="grid grid-cols-2 gap-6">
+
+  <!-- Membri -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+    <h3 class="font-semibold text-gray-700 mb-4">Membri ({{ members | length }})</h3>
+    <ul class="space-y-2">
+      {% for m in members %}
+      <li class="flex items-center gap-2 text-sm">
+        <span class="w-7 h-7 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center font-medium text-xs">
+          {{ m.username[0] | upper }}
+        </span>
+        <span class="text-gray-700">{{ m.username }}</span>
+        {% if m.id == group.owner_id %}
+        <span class="text-xs bg-indigo-50 text-indigo-500 px-2 py-0.5 rounded-full">owner</span>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+
+    {% if pending %}
+    <div class="mt-5 pt-4 border-t border-gray-100">
+      <p class="text-xs text-gray-400 font-medium mb-2">Inviti in sospeso</p>
+      <ul class="space-y-1">
+        {% for p in pending %}
+        <li class="text-sm text-gray-500 flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-yellow-400 inline-block"></span>
+          {{ p.username }}
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Invita utente (solo owner) -->
+  {% if is_owner %}
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+    <h3 class="font-semibold text-gray-700 mb-4">Invita utente</h3>
+    <form hx-post="/groups/{{ group.id }}/invite" hx-target="#invite-msg" hx-swap="outerHTML" class="space-y-3">
+      <input type="text" name="username" placeholder="Username" required
+        class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+      <button type="submit"
+        class="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium py-2 rounded-lg transition">
+        Invia invito
+      </button>
+    </form>
+    <p id="invite-msg" class="mt-2 text-sm"></p>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

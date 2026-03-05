@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Documenti – Squalide{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h2 class="text-2xl font-bold text-gray-800">I miei documenti</h2>
+  <a href="/upload" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">+ Carica</a>
+</div>
+
+{% if docs %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 border-b border-gray-100">
+      <tr>
+        <th class="text-left px-5 py-3 text-gray-500 font-medium">Nome file</th>
+        <th class="text-left px-5 py-3 text-gray-500 font-medium">Data upload</th>
+        <th class="px-5 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for doc in docs %}
+      <tr class="hover:bg-gray-50 transition">
+        <td class="px-5 py-3">
+          <a href="/documents/{{ doc.id }}" class="text-indigo-600 hover:underline font-medium">{{ doc.filename }}</a>
+        </td>
+        <td class="px-5 py-3 text-gray-500">{{ doc.uploaded_at.strftime("%d/%m/%Y %H:%M") }}</td>
+        <td class="px-5 py-3 text-right">
+          <button hx-post="/documents/{{ doc.id }}/delete" hx-confirm="Eliminare questo documento?"
+            class="text-xs text-red-500 hover:text-red-700 transition">Elimina</button>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-10 text-center">
+  <p class="text-gray-400 mb-4">Nessun documento caricato.</p>
+  <a href="/upload" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm px-4 py-2 rounded-lg transition">Carica il primo documento</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – Squalide{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+  <h2 class="text-2xl font-bold text-gray-800">Benvenuto, {{ user.username }}</h2>
+  <p class="text-sm text-gray-500 mt-1">{{ user.email }} · membro dal {{ user.created_at.strftime("%d/%m/%Y") }}</p>
+</div>
+
+<!-- Stat cards -->
+<div class="grid grid-cols-2 gap-4 mb-8">
+  <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+    <p class="text-sm text-gray-500 mb-1">Documenti caricati</p>
+    <p class="text-3xl font-bold text-indigo-600">{{ doc_count }}</p>
+    <a href="/documents" class="text-xs text-indigo-500 hover:underline mt-2 inline-block">Vedi tutti →</a>
+  </div>
+  <div class="bg-white rounded-xl shadow-sm p-5 border border-gray-100">
+    <p class="text-sm text-gray-500 mb-1">Gruppi</p>
+    <p class="text-3xl font-bold text-indigo-600">{{ groups | length }}</p>
+  </div>
+</div>
+
+<!-- Bottom grid -->
+<div class="grid grid-cols-2 gap-6">
+
+  <!-- Documenti recenti -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-semibold text-gray-700">Documenti recenti</h3>
+      <a href="/upload" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg transition">+ Carica</a>
+    </div>
+    {% if recent_docs %}
+      <ul class="space-y-2">
+        {% for doc in recent_docs %}
+        <li class="flex items-center justify-between text-sm">
+          <a href="/documents/{{ doc.id }}" class="text-indigo-600 hover:underline truncate max-w-xs">{{ doc.filename }}</a>
+          <span class="text-gray-400 text-xs ml-2 shrink-0">{{ doc.uploaded_at.strftime("%d/%m/%Y") }}</span>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-sm text-gray-400">Nessun documento caricato.</p>
+    {% endif %}
+  </div>
+
+  <!-- Gruppi -->
+  <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="font-semibold text-gray-700">I tuoi gruppi</h3>
+      <a href="/groups" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-lg transition">Gestisci</a>
+    </div>
+    {% if groups %}
+      <ul class="space-y-2">
+        {% for g in groups %}
+        <li class="flex items-center gap-2 text-sm">
+          <span class="w-2 h-2 rounded-full bg-indigo-400 inline-block"></span>
+          <a href="/groups/{{ g.id }}" class="text-indigo-600 hover:underline">{{ g.name }}</a>
+        </li>
+        {% endfor %}
+      </ul>
+    {% else %}
+      <p class="text-sm text-gray-400">Non appartieni a nessun gruppo.</p>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- Inviti in sospeso -->
+{% if invitations %}
+<div class="mt-6">
+  <h3 class="font-semibold text-gray-700 mb-3">Inviti in sospeso</h3>
+  <div class="space-y-3">
+    {% for inv in invitations %}
+    <div id="inv-{{ inv.id }}" class="bg-white rounded-xl shadow-sm border border-yellow-100 p-4 flex items-center justify-between">
+      <p class="text-sm text-gray-700">
+        <span class="font-medium">{{ inv.inviter }}</span> ti ha invitato nel gruppo
+        <span class="font-medium text-indigo-600">{{ inv.group_name }}</span>
+      </p>
+      <div class="flex gap-2">
+        <button hx-post="/invitations/{{ inv.id }}/accept" hx-target="#inv-{{ inv.id }}" hx-swap="outerHTML"
+          class="text-xs bg-green-600 hover:bg-green-700 text-white px-3 py-1.5 rounded-lg transition">
+          Accetta
+        </button>
+        <button hx-post="/invitations/{{ inv.id }}/reject" hx-target="#inv-{{ inv.id }}" hx-swap="outerHTML"
+          class="text-xs bg-gray-200 hover:bg-gray-300 text-gray-700 px-3 py-1.5 rounded-lg transition">
+          Rifiuta
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
+{% endblock %}

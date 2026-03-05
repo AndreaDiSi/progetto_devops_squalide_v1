@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Squalide{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+</head>
+<body class="bg-gray-100 min-h-screen">
+
+  <!-- Navbar -->
+  <nav class="bg-white border-b border-gray-200 shadow-sm">
+    <div class="max-w-6xl mx-auto px-4 flex items-center justify-between h-14">
+      <div class="flex items-center gap-6">
+        <a href="/dashboard" class="text-indigo-600 font-bold text-lg tracking-tight">Squalide</a>
+        <a href="/dashboard" class="text-sm text-gray-600 hover:text-indigo-600 transition">Dashboard</a>
+        <a href="/documents" class="text-sm text-gray-600 hover:text-indigo-600 transition">Documenti</a>
+        <a href="/groups" class="text-sm text-gray-600 hover:text-indigo-600 transition">Gruppi</a>
+        <a href="/upload" class="text-sm text-gray-600 hover:text-indigo-600 transition">Carica</a>
+      </div>
+      <div class="flex items-center gap-3">
+        <span class="text-sm text-gray-500">{{ request.session.get("username", "") }}</span>
+        <a href="/logout" class="text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 py-1.5 rounded transition">Esci</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Content -->
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    {% block content %}{% endblock %}
+  </main>
+
+</body>
+</html>

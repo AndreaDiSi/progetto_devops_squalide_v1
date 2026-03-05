@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{ doc.filename }} – Squalide{% endblock %}
+
+{% block content %}
+<div class="mb-4">
+  <a href="/documents" class="text-sm text-indigo-600 hover:underline">← Torna ai documenti</a>
+</div>
+
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6">
+  <div class="flex items-start justify-between mb-4">
+    <div>
+      <h2 class="text-xl font-bold text-gray-800">{{ doc.filename }}</h2>
+      <p class="text-sm text-gray-400 mt-1">{{ doc.uploaded_at.strftime("%d/%m/%Y %H:%M") }}</p>
+    </div>
+    <button hx-post="/documents/{{ doc._id }}/delete" hx-confirm="Eliminare questo documento?"
+      class="text-sm text-red-500 hover:text-red-700 transition">Elimina</button>
+  </div>
+  <pre class="bg-gray-50 rounded-lg p-4 text-sm text-gray-700 overflow-auto max-h-[60vh] whitespace-pre-wrap">{{ doc.content }}</pre>
+</div>
+{% endblock %}

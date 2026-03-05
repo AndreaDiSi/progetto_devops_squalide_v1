@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Gruppi – Squalide{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-between mb-6">
+  <h2 class="text-2xl font-bold text-gray-800">Gruppi</h2>
+</div>
+
+<!-- Crea gruppo -->
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 mb-6">
+  <h3 class="font-semibold text-gray-700 mb-3">Crea nuovo gruppo</h3>
+  <form hx-post="/groups/new" hx-target="#group-msg" hx-swap="outerHTML" class="flex gap-3">
+    <input type="text" name="group_name" placeholder="Nome gruppo" required
+      class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+    <button type="submit"
+      class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition">
+      Crea
+    </button>
+  </form>
+  <p id="group-msg" class="mt-2 text-sm"></p>
+</div>
+
+<!-- Lista gruppi -->
+{% if groups %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+  <table class="w-full text-sm">
+    <thead class="bg-gray-50 border-b border-gray-100">
+      <tr>
+        <th class="text-left px-5 py-3 text-gray-500 font-medium">Nome</th>
+        <th class="text-left px-5 py-3 text-gray-500 font-medium">Proprietario</th>
+        <th class="text-left px-5 py-3 text-gray-500 font-medium">Membri</th>
+        <th class="px-5 py-3"></th>
+      </tr>
+    </thead>
+    <tbody class="divide-y divide-gray-100">
+      {% for g in groups %}
+      <tr class="hover:bg-gray-50 transition">
+        <td class="px-5 py-3 font-medium text-gray-800">{{ g.name }}</td>
+        <td class="px-5 py-3 text-gray-500">{{ g.owner }}</td>
+        <td class="px-5 py-3 text-gray-500">{{ g.members }}</td>
+        <td class="px-5 py-3 text-right">
+          <a href="/groups/{{ g.id }}" class="text-indigo-600 hover:underline text-xs">Apri →</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% else %}
+<div class="bg-white rounded-xl shadow-sm border border-gray-100 p-10 text-center">
+  <p class="text-gray-400">Non appartieni a nessun gruppo.</p>
+</div>
+{% endif %}
+{% endblock %}

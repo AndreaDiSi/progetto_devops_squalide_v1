@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python -m venv venv)",
+      "Bash(venv/Scripts/pip install -r requirements.txt)",
+      "Bash(docker ps --format \"table {{.Names}}\\\\t{{.Status}}\")"
+    ]
+  }
+}
