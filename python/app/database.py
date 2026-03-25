@@ -15,7 +15,28 @@ def get_conn():
 def init_db():
     with get_conn() as conn:
         with conn.cursor() as cur:
-            
+            # Migrazione: ricrea documents se manca mongo_doc_id (vecchio schema)
+            cur.execute("""
+                SELECT column_name FROM information_schema.columns
+                WHERE table_name = 'documents' AND column_name = 'mongo_doc_id'
+            """)
+            if not cur.fetchone():
+                cur.execute("DROP TABLE IF EXISTS folder_document_permissions CASCADE")
+                cur.execute("DROP TABLE IF EXISTS folder_documents CASCADE")
+                cur.execute("DROP TABLE IF EXISTS folders CASCADE")
+                cur.execute("DROP TABLE IF EXISTS shared_documents CASCADE")
+                cur.execute("DROP TABLE IF EXISTS documents CASCADE")
+
+            # Migrazione: ricrea le tabelle folder se hanno il vecchio schema (senza document_id)
+            cur.execute("""
+                SELECT column_name FROM information_schema.columns
+                WHERE table_name = 'folder_documents' AND column_name = 'document_id'
+            """)
+            if not cur.fetchone():
+                cur.execute("DROP TABLE IF EXISTS folder_document_permissions CASCADE")
+                cur.execute("DROP TABLE IF EXISTS folder_documents CASCADE")
+                cur.execute("DROP TABLE IF EXISTS folders CASCADE")
+
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     user_id SERIAL PRIMARY KEY,
@@ -59,11 +80,15 @@ def init_db():
                 CREATE TABLE IF NOT EXISTS documents (
                     document_id SERIAL PRIMARY KEY,
                     user_id INTEGER NOT NULL REFERENCES users(user_id),
-                    title VARCHAR(255),
-                    content TEXT,
-                    file_name VARCHAR(255),
-                    upload_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                    mongo_doc_id VARCHAR(24) NOT NULL,
+                    file_name VARCHAR(255) NOT NULL,
+                    is_deleted BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    created_by INTEGER NOT NULL REFERENCES users(user_id),
+                    updated_at TIMESTAMP,
+                    updated_by INTEGER REFERENCES users(user_id),
+                    deleted_at TIMESTAMP,
+                    deleted_by INTEGER REFERENCES users(user_id)
                 );
 
 
@@ -106,6 +131,40 @@ def init_db():
                     action_timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     ip_address VARCHAR(45),
                     user_agent TEXT
+                );
+
+
+                CREATE TABLE IF NOT EXISTS folders (
+                    folder_id SERIAL PRIMARY KEY,
+                    group_id INTEGER NOT NULL REFERENCES groups(group_id) ON DELETE CASCADE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    UNIQUE(group_id)
+                );
+
+
+                CREATE TABLE IF NOT EXISTS folder_documents (
+                    id SERIAL PRIMARY KEY,
+                    folder_id INTEGER NOT NULL REFERENCES folders(folder_id) ON DELETE CASCADE,
+                    document_id INTEGER NOT NULL REFERENCES documents(document_id) ON DELETE CASCADE,
+                    owner_id INTEGER NOT NULL REFERENCES users(user_id),
+                    is_deleted BOOLEAN DEFAULT FALSE,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    created_by INTEGER NOT NULL REFERENCES users(user_id),
+                    updated_at TIMESTAMP,
+                    updated_by INTEGER REFERENCES users(user_id),
+                    deleted_at TIMESTAMP,
+                    deleted_by INTEGER REFERENCES users(user_id),
+                    UNIQUE(folder_id, document_id)
+                );
+
+
+                CREATE TABLE IF NOT EXISTS folder_document_permissions (
+                    id SERIAL PRIMARY KEY,
+                    folder_doc_id INTEGER NOT NULL REFERENCES folder_documents(id) ON DELETE CASCADE,
+                    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+                    can_edit BOOLEAN DEFAULT FALSE,
+                    can_delete BOOLEAN DEFAULT FALSE,
+                    UNIQUE(folder_doc_id, user_id)
                 );
             """)
         conn.commit()
