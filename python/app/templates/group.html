@@ -7,7 +7,10 @@
 </div>
 
 <div class="flex items-center justify-between mb-6">
-  <h2 class="text-2xl font-bold text-gray-800">{{ group.name }}</h2>
+  <div>
+    <h2 class="text-2xl font-bold text-gray-800">{{ group.name }}</h2>
+    <a href="/groups/{{ group.id }}/folder" class="text-sm text-indigo-600 hover:underline">📁 Apri folder documenti</a>
+  </div>
   {% if is_owner %}
   <button hx-post="/groups/{{ group.id }}/delete" hx-confirm="Eliminare il gruppo? Tutti i membri verranno rimossi."
     class="text-sm text-red-500 hover:text-red-700 border border-red-200 hover:border-red-400 px-3 py-1.5 rounded-lg transition">

@@ -5,3 +5,5 @@ python-multipart
 psycopg2-binary
 itsdangerous
 pymongo
+httpx
+python-dotenv

@@ -3,7 +3,14 @@
     "allow": [
       "Bash(python -m venv venv)",
       "Bash(venv/Scripts/pip install -r requirements.txt)",
-      "Bash(docker ps --format \"table {{.Names}}\\\\t{{.Status}}\")"
+      "Bash(docker ps --format \"table {{.Names}}\\\\t{{.Status}}\")",
+      "Bash(venv/Scripts/pip install httpx -q)",
+      "Bash(docker compose:*)",
+      "Bash(curl -s http://localhost:8086/ping)",
+      "Bash(curl -sv http://localhost:8086/ping)",
+      "Bash(curl -s http://localhost:8086/health)",
+      "Bash(curl -s \"http://localhost:8086/api/v2/setup\")",
+      "Bash(curl -s -H \"Authorization: Token admin\" \"http://localhost:8086/api/v2/orgs\")"
     ]
   }
 }
